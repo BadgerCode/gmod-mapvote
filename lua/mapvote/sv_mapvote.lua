@@ -13,7 +13,8 @@ net.Receive("RAM_MapVoteUpdate", function(len, ply)
             if(update_type == MapVote.UPDATE_VOTE) then
                 local map_id = net.ReadUInt(32)
                 
-                if(MapVote.CurrentMaps[map_id]) then
+
+                if(MapVote.CurrentMaps[map_id] or map_id == MapVote.RandomMapID) then
                     MapVote.Votes[ply:SteamID()] = map_id
                     
                     net.Start("RAM_MapVoteUpdate")
@@ -155,9 +156,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
             
             net.WriteUInt(winner, 32)
         net.Broadcast()
+
+        if(winner == MapVote.RandomMapID) then
+            winner = math.random(#MapVote.CurrentMaps)
+        end
         
         local map = MapVote.CurrentMaps[winner]
-
         local gamemode = nil
 
         if (autoGamemode) then

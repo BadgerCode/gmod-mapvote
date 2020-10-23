@@ -247,47 +247,57 @@ function PANEL:Think()
     self.countDown:CenterHorizontal()
 end
 
+function PANEL:CreateButton(ID, text, fullwidth)
+    local button = vgui.Create("DButton", self.mapList)
+    button.ID = ID
+    button:SetText(text)
+
+    button.DoClick = function()
+        net.Start("RAM_MapVoteUpdate")
+            net.WriteUInt(MapVote.UPDATE_VOTE, 3)
+            net.WriteUInt(button.ID, 32)
+        net.SendToServer()
+    end
+
+    do
+        local Paint = button.Paint
+        button.Paint = function(s, w, h)
+            local col = Color(255, 255, 255, 10)
+
+            if(button.bgColor) then
+                col = button.bgColor
+            end
+
+            draw.RoundedBox(4, 0, 0, w, h, col)
+            Paint(s, w, h)
+        end
+    end
+
+    button:SetTextColor(color_white)
+    button:SetContentAlignment(4)
+    button:SetTextInset(8, 0)
+    button:SetFont("RAM_VoteFont")
+
+    local width = 285 + (math.Clamp(300, 0, ScrW() - 640) / 2)
+
+    if(fullwidth == true) then width = width * 2 + 5 end
+
+    button:SetDrawBackground(false)
+    button:SetTall(24)
+    button:SetWide(width)
+    button.NumVotes = 0
+
+    return button
+end
+
 function PANEL:SetMaps(maps)
     self.mapList:Clear()
     
+    local randomButton = self:CreateButton(MapVote.RandomMapID, "Random Map", true)
+    self.mapList:AddItem(randomButton)
+
     for k, v in RandomPairs(maps) do
-        local button = vgui.Create("DButton", self.mapList)
-        button.ID = k
-        button:SetText(v)
-        
-        button.DoClick = function()
-            net.Start("RAM_MapVoteUpdate")
-                net.WriteUInt(MapVote.UPDATE_VOTE, 3)
-                net.WriteUInt(button.ID, 32)
-            net.SendToServer()
-        end
-        
-        do
-            local Paint = button.Paint
-            button.Paint = function(s, w, h)
-                local col = Color(255, 255, 255, 10)
-                
-                if(button.bgColor) then
-                    col = button.bgColor
-                end
-                
-                draw.RoundedBox(4, 0, 0, w, h, col)
-                Paint(s, w, h)
-            end
-        end
-        
-        button:SetTextColor(color_white)
-        button:SetContentAlignment(4)
-        button:SetTextInset(8, 0)
-        button:SetFont("RAM_VoteFont")
-        
-        local extra = math.Clamp(300, 0, ScrW() - 640)
-        
-        button:SetDrawBackground(false)
-        button:SetTall(24)
-        button:SetWide(285 + (extra / 2))
-        button.NumVotes = 0
-        
+        local button = self:CreateButton(k, v)
         self.mapList:AddItem(button)
     end
 end

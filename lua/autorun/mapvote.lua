@@ -43,6 +43,8 @@ MapVote.Allow = false
 MapVote.UPDATE_VOTE = 1
 MapVote.UPDATE_WIN = 3
 
+MapVote.RandomMapID = 4294967295
+
 if SERVER then
     AddCSLuaFile()
     AddCSLuaFile("mapvote/cl_mapvote.lua")
