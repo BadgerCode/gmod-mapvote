@@ -108,7 +108,7 @@ function PANEL:Init()
     end
 
     self.closeButton.DoClick = function()
-        print("HI")
+        chat.AddText("To re-open the map vote, type !openmapvote")
         self:SetVisible(false)
     end
 
@@ -333,8 +333,12 @@ function PANEL:Paint()
     surface.DrawRect(0, 0, ScrW(), ScrH())
 end
 
-function PANEL:Flash(id)
+function PANEL:Show()
     self:SetVisible(true)
+end
+
+function PANEL:Flash(id)
+    self:Show()
 
     local bar = self:GetMapButton(id)
     
@@ -349,3 +353,13 @@ function PANEL:Flash(id)
 end
 
 derma.DefineControl("RAM_VoteScreen", "", PANEL, "DPanel")
+
+
+net.Receive("RAM_MapVoteOpenUI", function()
+    if(IsValid(MapVote.Panel) == false) then
+        chat.AddText("You can only use this command when a mapvote in progress.")
+        return
+    end
+
+    MapVote.Panel:Show()
+end)
