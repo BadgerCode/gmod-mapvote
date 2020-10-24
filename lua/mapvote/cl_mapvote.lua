@@ -247,7 +247,15 @@ function PANEL:Think()
     self.countDown:CenterHorizontal()
 end
 
-function PANEL:CreateButton(ID, text, fullwidth)
+function PANEL:GetButtonHeight()
+    return 24
+end
+
+function PANEL:GetButtonWidth()
+    return 285 + (math.Clamp(300, 0, ScrW() - 640) / 2)
+end
+
+function PANEL:CreateButton(ID, text)
     local button = vgui.Create("DButton", self.mapList)
     button.ID = ID
     button:SetText(text)
@@ -278,23 +286,28 @@ function PANEL:CreateButton(ID, text, fullwidth)
     button:SetTextInset(8, 0)
     button:SetFont("RAM_VoteFont")
 
-    local width = 285 + (math.Clamp(300, 0, ScrW() - 640) / 2)
-
-    if(fullwidth == true) then width = width * 2 + 5 end
-
     button:SetDrawBackground(false)
-    button:SetTall(24)
-    button:SetWide(width)
+    button:SetTall(self:GetButtonHeight())
+    button:SetWide(self:GetButtonWidth())
     button.NumVotes = 0
 
     return button
 end
 
+function PANEL:CreateSpacer(width)
+    local spacer = vgui.Create("Panel", self.mapList)
+    spacer:SetTall(self:GetButtonHeight())
+    spacer:SetWide(width)
+    return spacer
+end
+
 function PANEL:SetMaps(maps)
     self.mapList:Clear()
-    
-    local randomButton = self:CreateButton(MapVote.RandomMapID, "Random Map", true)
-    self.mapList:AddItem(randomButton)
+
+    local buttonWidth = self:GetButtonWidth()
+    self.mapList:AddItem(self:CreateSpacer(buttonWidth / 2))
+    self.mapList:AddItem(self:CreateButton(MapVote.RandomMapID, "Random Map"))
+    self.mapList:AddItem(self:CreateSpacer(buttonWidth / 2))
 
     for k, v in RandomPairs(maps) do
         local button = self:CreateButton(k, v)
