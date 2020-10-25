@@ -1,6 +1,7 @@
 util.AddNetworkString("RAM_MapVoteStart")
 util.AddNetworkString("RAM_MapVoteUpdate")
 util.AddNetworkString("RAM_MapVoteCancel")
+util.AddNetworkString("RAM_MapVoteOpenUI")
 util.AddNetworkString("RTV_Delay")
 
 MapVote.Continued = false
@@ -214,3 +215,12 @@ function MapVote.Cancel()
         timer.Destroy("RAM_MapVote")
     end
 end
+
+
+hook.Remove("PlayerSay", "mapvote_playersay")
+hook.Add("PlayerSay", "mapvote_playersay", function(ply, text)
+    if(string.lower(text) != "!openmapvote") then return end
+
+    net.Start("RAM_MapVoteOpenUI")
+    net.Send(ply)
+end)
